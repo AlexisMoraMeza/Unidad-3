@@ -1,0 +1,5 @@
+0001|chamarra negra|199.99|Ropa
+0005|pantalon negro|149.99|Ropa
+0002|camisa azul|99.99|Ropa
+0003|coca-cola 600ml|17|bebida
+0004|tenis_adidas_negros|1499.99|deporte
