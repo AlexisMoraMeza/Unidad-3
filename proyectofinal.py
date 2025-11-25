@@ -1,13 +1,46 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-from PIL import Image, ImageTk   # Necesita instalar pillow: pip install pillow
+from PIL import Image, ImageTk
 import os
+from datetime import datetime
+
+# -------------------------------------------------
+# FUNCIÓN PARA MOSTRAR EL TICKET DE VENTA
+# -------------------------------------------------
+def mostrar_ticket(producto, precio, cantidad, total):
+    ticket = tk.Toplevel()
+    ticket.title("Ticket de Venta")
+    ticket.geometry("300x350")
+    ticket.resizable(False, False)
+
+    fecha_hora = datetime.now().strftime("%d/%m/%Y %I:%M:%S %p")
+
+    texto = (
+        " *** PUNTO DE VENTA ***\n"
+        "--------------------------------------\n"
+        f"Fecha: {fecha_hora}\n"
+        "--------------------------------------\n"
+        f"Producto: {producto}\n"
+        f"Precio: ${precio}\n"
+        f"Cantidad: {cantidad}\n"
+        "--------------------------------------\n"
+        f"TOTAL: ${total}\n"
+        "--------------------------------------\n"
+        " ¡GRACIAS POR SU COMPRA!\n"
+    )
+
+    lbl_ticket = tk.Label(ticket, text=texto, justify="left", font=("Consolas", 11))
+    lbl_ticket.pack(pady=15)
+
+    btn_cerrar = ttk.Button(ticket, text="Cerrar", command=ticket.destroy)
+    btn_cerrar.pack(pady=10)
+
 
 # -------------------------
-# FUNCIONES
+# REGISTRO DE PRODUCTOS
 # -------------------------
-def abrir_registro_productos():   
+def abrir_registro_productos():
     reg = tk.Toplevel()
     reg.title("Registro de Productos")
     reg.geometry("400x400")
@@ -51,6 +84,7 @@ def abrir_registro_productos():
 
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
         archivo = os.path.join(BASE_DIR, "productos.txt")
+
         with open(archivo, "a", encoding="utf-8") as archivo_txt:
             archivo_txt.write(f"{id_prod}|{descripcion}|{precio}|{categoria}\n")
             messagebox.showinfo("Guardado", "Producto registrado correctamente.")
@@ -65,7 +99,7 @@ def abrir_registro_productos():
 
 
 # -------------------------------------------------
-# AQUÍ AGREGO EL NUEVO MÓDULO DE REGISTRO DE VENTAS
+# REGISTRO DE VENTAS
 # -------------------------------------------------
 def abrir_registro_ventas():
     ven = tk.Toplevel()
@@ -73,7 +107,6 @@ def abrir_registro_ventas():
     ven.geometry("420x430")
     ven.resizable(False, False)
 
-    # Cargar productos
     productos = {}
     try:
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -91,9 +124,6 @@ def abrir_registro_ventas():
 
     lista_productos = list(productos.keys())
 
-    # ----------------------
-    # FUNCIONES INTERNAS
-    # ----------------------
     def actualizar_precio(event):
         prod = cb_producto.get()
         if prod in productos:
@@ -134,14 +164,14 @@ def abrir_registro_ventas():
             archivo.write(f"{prod}|{precio}|{cant}|{total}\n")
             messagebox.showinfo("Venta Registrada", "La venta se registró correctamente.")
 
+        # --- MOSTRAR TICKET ---
+        mostrar_ticket(prod, precio, cant, total)
+
         cb_producto.set("")
         txt_precio.config(state="normal"); txt_precio.delete(0, tk.END); txt_precio.config(state="readonly")
         txt_cantidad.delete(0, tk.END)
         txt_total.config(state="normal"); txt_total.delete(0, tk.END); txt_total.config(state="readonly")
 
-    # -------------------------
-    # CONTROLES VISUALES
-    # -------------------------
     lbl_prod = tk.Label(ven, text="Producto:", font=("Arial", 12))
     lbl_prod.pack(pady=5)
 
@@ -177,7 +207,9 @@ def abrir_registro_ventas():
     btn_guardar.pack(pady=25)
 
 
-
+# -------------------------
+# MENÚ REPORTES / ACERCA DE
+# -------------------------
 def abrir_reportes():
     messagebox.showinfo("Reportes", "Aquí irá el módulo de reportes.")
 
@@ -193,7 +225,6 @@ ventana.title("Punto de Venta - Ropa")
 ventana.geometry("500x600")
 ventana.resizable(False, False)
 
-# LOGO
 try:
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     imagen = Image.open(os.path.join(BASE_DIR, "ventas2025.png"))
@@ -205,7 +236,6 @@ except:
     lbl_sin_logo = tk.Label(ventana, text="(Aquí va el logo del sistema)", font=("Arial", 14))
     lbl_sin_logo.pack(pady=40)
 
-# ESTILO
 estilo = ttk.Style()
 estilo.configure(
     "BotonNegro.TButton",
@@ -220,7 +250,6 @@ estilo.map(
     background=[("!disabled", "#000000"), ("active", "#1A1A1A")]
 )
 
-# BOTONES PRINCIPALES
 btn_reg_prod = ttk.Button(ventana, text="Registro de Productos",
                           style="BotonNegro.TButton", command=abrir_registro_productos)
 btn_reg_prod.pack(pady=10)
@@ -237,5 +266,4 @@ btn_acerca = ttk.Button(ventana, text="Acerca de",
                         style="BotonNegro.TButton", command=abrir_acerca_de)
 btn_acerca.pack(pady=10)
 
-# INICIO
 ventana.mainloop()
