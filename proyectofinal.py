@@ -5,6 +5,7 @@ from PIL import Image, ImageTk
 import os
 from datetime import datetime
 
+
 # -------------------------------------------------
 # FUNCIÓN PARA MOSTRAR EL TICKET DE VENTA
 # -------------------------------------------------
@@ -37,9 +38,9 @@ def mostrar_ticket(producto, precio, cantidad, total):
     btn_cerrar.pack(pady=10)
 
 
-# -------------------------
+# -------------------------------------------------
 # REGISTRO DE PRODUCTOS
-# -------------------------
+# -------------------------------------------------
 def abrir_registro_productos():
     reg = tk.Toplevel()
     reg.title("Registro de Productos")
@@ -164,7 +165,6 @@ def abrir_registro_ventas():
             archivo.write(f"{prod}|{precio}|{cant}|{total}\n")
             messagebox.showinfo("Venta Registrada", "La venta se registró correctamente.")
 
-        # --- MOSTRAR TICKET ---
         mostrar_ticket(prod, precio, cant, total)
 
         cb_producto.set("")
@@ -207,19 +207,87 @@ def abrir_registro_ventas():
     btn_guardar.pack(pady=25)
 
 
-# -------------------------
-# MENÚ REPORTES / ACERCA DE
-# -------------------------
+# -------------------------------------------------
+# REPORTE DE VENTAS (GRID + TOTAL)
+# -------------------------------------------------
 def abrir_reportes():
-    messagebox.showinfo("Reportes", "Aquí irá el módulo de reportes.")
+    ventana = tk.Toplevel()
+    ventana.title("Reporte de Ventas")
+    ventana.geometry("750x460")
+    ventana.configure(bg="#f2f2f2")
 
+    titulo = tk.Label(
+        ventana,
+        text="Reporte de Ventas Realizadas",
+        font=("Arial", 16, "bold"),
+        bg="#f2f2f2"
+    )
+    titulo.pack(pady=10)
+
+    frame_tabla = tk.Frame(ventana)
+    frame_tabla.pack(pady=10)
+
+    columnas = ("producto", "precio", "cantidad", "total")
+    tabla = ttk.Treeview(frame_tabla, columns=columnas, show="headings", height=15)
+
+    tabla.heading("producto", text="Producto")
+    tabla.heading("precio", text="Precio")
+    tabla.heading("cantidad", text="Cantidad")
+    tabla.heading("total", text="Total")
+
+    tabla.column("producto", width=260, anchor="center")
+    tabla.column("precio", width=100, anchor="center")
+    tabla.column("cantidad", width=100, anchor="center")
+    tabla.column("total", width=120, anchor="center")
+    tabla.pack()
+
+    total_general = 0
+
+    try:
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        archivo = os.path.join(BASE_DIR, "ventas.txt")
+
+        with open(archivo, "r", encoding="utf-8") as archivo:
+            for linea in archivo:
+                if linea.strip():
+                    datos = linea.strip().split("|")
+                    if len(datos) == 4:
+                        tabla.insert("", tk.END, values=datos)
+                        total_general += float(datos[3])
+
+    except FileNotFoundError:
+        messagebox.showerror("Error", "El archivo ventas.txt no existe.")
+        ventana.destroy()
+        return
+
+    lbl_total = tk.Label(
+        ventana,
+        text=f"TOTAL GENERAL DE VENTAS:  ${total_general:.2f}",
+        font=("Arial", 14, "bold"),
+        bg="#f2f2f2",
+        fg="green"
+    )
+    lbl_total.pack(pady=15)
+
+
+# -------------------------------------------------
+# ACERCA DE (FINAL DEL PROYECTO)
+# -------------------------------------------------
 def abrir_acerca_de():
-    messagebox.showinfo("Acerca de", "Punto de Venta de Ropa\nProyecto Escolar\nVersión 1.0")
+    messagebox.showinfo(
+        "Acerca del Proyecto",
+        "Punto de Venta de Ropa\n"
+        "Proyecto final del curso de Programación\n"
+        "Desarrollado en Python con Tkinter\n"
+        "Versión 2.0 (2025)\n\n"
+        "Gracias por utilizar este sistema.\n"
+        "¡Felicidades por concluir el curso!"
+    )
 
 
-# -------------------------
+# -------------------------------------------------
 # VENTANA PRINCIPAL
-# -------------------------
+# -------------------------------------------------
 ventana = tk.Tk()
 ventana.title("Punto de Venta - Ropa")
 ventana.geometry("500x600")
